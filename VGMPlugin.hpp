@@ -36,7 +36,8 @@ public:
 	constexpr VGMPlugin() :
 		InputPlugin(info, iinfo),
 		probe_player(nullptr),
-		main_player(nullptr) {}
+		main_player(nullptr),
+		sample_buffer(nullptr) {}
 
 	bool init();
 	void cleanup();
