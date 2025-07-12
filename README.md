@@ -5,7 +5,7 @@ An Audacious plugin that uses [libvgm](https://github.com/ValleyBell/libvgm) to 
 # Building
 
 ```bash
-git clone https://github.com/dakrk/audacious-libvgm
+git clone --recursive https://github.com/dakrk/audacious-libvgm
 cd audacious-libvgm
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j
