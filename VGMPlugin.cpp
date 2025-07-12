@@ -159,6 +159,7 @@ void VGMPlugin::cleanup()
 {
 	delete probe_player;
 	delete main_player;
+	delete sample_buffer;
 }
 
 bool VGMPlugin::is_our_file(const char *filename, VFSFile &file)
