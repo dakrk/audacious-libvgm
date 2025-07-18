@@ -464,11 +464,9 @@ DATA_LOADER *VGMPlugin::file_callback(void *user_param, PlayerBase *player, cons
 	DATA_LOADER *loader = VFSLoader_Init(file);
 
 	if (!DataLoader_Load(loader))
-	{
-		AUDERR("Failed to load %s\n", filename);
 		return loader;
-	}
 
+	AUDERR("Failed to load %s\n", filename);
 	DataLoader_Deinit(loader);
 	return nullptr;
 }
