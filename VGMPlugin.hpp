@@ -1,5 +1,6 @@
 #pragma once
 #include <mutex>
+#include <libaudcore/audstrings.h>
 #include <libaudcore/i18n.h>
 #include <libaudcore/plugin.h>
 #include <libaudcore/preferences.h>
@@ -71,6 +72,9 @@ private:
 
 		// Tagging
 		bool untranslated_tags;
+
+		// Miscellaneous
+		String file_request_path;
 	} config;
 
 	PlayerA *probe_player;

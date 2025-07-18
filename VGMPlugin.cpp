@@ -40,6 +40,9 @@ const char *const VGMPlugin::defaults[] = {
 
 	// Tagging
 	"untranslated_tags", "FALSE",
+
+	// Miscellaneous
+	"file_request_path", "",
 	nullptr
 };
 
@@ -112,7 +115,21 @@ const PreferencesWidget VGMPlugin::widgets[] = {
 	WidgetCheck(
 		N_("Prefer untranslated text"),
 		WidgetBool(CFG_SECTION, "untranslated_tags")
-	)
+	),
+
+	WidgetLabel(N_("<b>Miscellaneous</b>")),
+
+	/**
+	 * Audacious bug on my version seems to cause an assert if you dare remove
+	 * everything from the text field
+	 */
+	WidgetFileEntry(
+		N_("File request path:"),
+		WidgetString(CFG_SECTION, "file_request_path"),
+		{ FileSelectMode::Folder }
+	),
+
+	WidgetLabel("File requests are required for OPL4 songs, which need a ROM.")
 };
 
 /**
@@ -374,6 +391,9 @@ void VGMPlugin::load_settings()
 	// Tagging
 	self.config.untranslated_tags = aud_get_bool(CFG_SECTION, "untranslated_tags");
 
+	// Miscellaneous
+	self.config.file_request_path = aud_get_str(CFG_SECTION, "file_request_path");
+
 	self.allocate_sample_buffer();
 }
 
@@ -431,8 +451,26 @@ UINT8 VGMPlugin::event_callback(PlayerBase *player, void *user_param, UINT8 even
 
 DATA_LOADER *VGMPlugin::file_callback(void *user_param, PlayerBase *player, const char *filename)
 {
-	AUDERR("Failed to load %s; file requests are unimplemented!", filename);
-	return nullptr; // TODO (fortunately very uncommon)
+	VGMPlugin *self = (VGMPlugin *)user_param;
+
+	AUDINFO("%s was requested\n", filename);
+
+	VFSFile file(filename_build({ self->config.file_request_path, filename }), "rb");
+
+	// VFSFile should spew out its own AUDERR message
+	if (file.error())
+		return nullptr;
+
+	DATA_LOADER *loader = VFSLoader_Init(file);
+
+	if (!DataLoader_Load(loader))
+	{
+		AUDERR("Failed to load %s\n", filename);
+		return loader;
+	}
+
+	DataLoader_Deinit(loader);
+	return nullptr;
 }
 
 void VGMPlugin::log_callback(void *user_param, PlayerBase *player, UINT8 level, UINT8 src_type, const char *src_tag, const char *message)
