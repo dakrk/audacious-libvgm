@@ -1,6 +1,6 @@
 #include <cstring>
+#include <mutex>
 #include <libaudcore/audstrings.h>
-#include <libaudcore/threads.h> // cannot be included after i18n!
 #include <libaudcore/i18n.h>
 #include <libaudcore/plugin.h>
 #include <libaudcore/preferences.h>
@@ -164,6 +164,7 @@ void VGMPlugin::cleanup()
 
 bool VGMPlugin::is_our_file(const char *filename, VFSFile &file)
 {
+	std::lock_guard lock(mutex);
 	DATA_LOADER *loader = VFSLoader_Init(file);
 	DataLoader_SetPreloadBytes(loader, 0x40);
 
@@ -208,6 +209,7 @@ bool VGMPlugin::is_our_file(const char *filename, VFSFile &file)
 
 bool VGMPlugin::read_tag(const char *filename, VFSFile &file, Tuple &tuple, Index<char> *image)
 {
+	std::lock_guard lock(mutex);
 	DATA_LOADER *loader;
 	PlayerBase *engine;
 	StringBuf comment;
@@ -378,14 +380,13 @@ void VGMPlugin::load_settings()
 void VGMPlugin::apply_player_settings(PlayerA *player)
 {
 	player->SetLoopCount(config.loop_count);
-	player->SetFadeSamples(probe_player->GetSampleRate() * (config.fade_time / 1000.f));
-	UINT32 end_silence = (main_player->GetLoopTime() > 0) ? config.loop_end_silence : config.end_silence;
-	player->SetEndSilenceSamples(main_player->GetSampleRate() * (end_silence / 1000.f));
+	player->SetFadeSamples(player->GetSampleRate() * (config.fade_time / 1000.f));
+	UINT32 end_silence = (player->GetLoopTime() > 0) ? config.loop_end_silence : config.end_silence;
+	player->SetEndSilenceSamples(player->GetSampleRate() * (end_silence / 1000.f));
 }
 
 void VGMPlugin::allocate_sample_buffer()
 {
-	aud::mutex mutex; // to account for configuring during playback
 	mutex.lock();
 	sample_buffer_size = (config.bit_depth / 8) * NUM_SAMPLES * NUM_CHANNELS;
 	delete sample_buffer;

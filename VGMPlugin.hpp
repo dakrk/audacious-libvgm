@@ -1,4 +1,5 @@
 #pragma once
+#include <mutex>
 #include <libaudcore/i18n.h>
 #include <libaudcore/plugin.h>
 #include <libaudcore/preferences.h>
@@ -76,5 +77,6 @@ private:
 	PlayerA *main_player;
 	UINT32 sample_buffer_size;
 	UINT8 *sample_buffer;
+	std::mutex mutex;
 	bool song_ended;
 };
