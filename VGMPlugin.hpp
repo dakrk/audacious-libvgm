@@ -31,9 +31,7 @@ public:
 		0
 	};
 
-	static constexpr InputInfo iinfo = InputInfo()
-		.with_priority(_AUD_PLUGIN_DEFAULT_PRIO - 1) // go before GME
-		.with_exts(exts);
+	static constexpr InputInfo iinfo = InputInfo().with_exts(exts);
 
 	constexpr VGMPlugin() :
 		InputPlugin(info, iinfo),
